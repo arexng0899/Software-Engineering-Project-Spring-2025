@@ -1,7 +1,9 @@
-package entity;
+package com.example.reviewapp.entity;
+
+import jakarta.persistence.*;
 
 @Entity
-class Review {
+public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -10,6 +12,9 @@ class Review {
     @ManyToOne
     @JoinColumn(name = "professor_id", nullable = false)
     private Professor professor;
+    
+    public Review() {
+    }
 
     public Review(String reviewText, Professor professor) {
         this.reviewText = reviewText;
@@ -17,22 +22,26 @@ class Review {
     }
 
     public Long getId() { 
-    	return id; 
+        return id; 
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
     }
     
     public String getReviewText() { 
-    	return reviewText; 
+        return reviewText; 
     }
     
     public void setReviewText(String reviewText) { 
-    	this.reviewText = reviewText; 
+        this.reviewText = reviewText; 
     }
     
     public Professor getProfessor() { 
-    	return professor; 
+        return professor; 
     }
     
     public void setProfessor(Professor professor) { 
-    	this.professor = professor; 
+        this.professor = professor; 
     }
 }
