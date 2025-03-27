@@ -1,3 +1,10 @@
-package repository;
+package com.example.reviewapp.repository;
 
-interface ReviewRepository extends JpaRepository<Review, Long> {}
+import com.example.reviewapp.entity.Review;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ReviewRepository extends JpaRepository<Review, Long> {
+}
+
