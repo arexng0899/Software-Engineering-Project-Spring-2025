@@ -1,0 +1,12 @@
+{
+    "java.configuration.runtimes": [
+      {
+        "name": "JavaSE-17",
+        "path": "C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.12.7-hotspot",
+        "default": true
+      }
+    ],
+    "java.compiler.source": "17",
+    "java.compiler.target": "17"
+  }
+  
