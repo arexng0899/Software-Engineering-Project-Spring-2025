@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Professor Reviews</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .search-bar {
+    flex: 1;
+    margin: 0 40px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.search-bar input {
+    width: 60%;
+    padding: 8px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+}
+
+.search-button {
+    padding: 8px 16px;
+    font-size: 16px;
+    background-color: #555;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-buttons a {
+            background-color: #555;
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .main-content {
+            display: flex;
+            padding: 30px;
+            gap: 40px;
+        }
+
+        .form-box {
+            width: 40%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+
+        .form-box input, .form-box textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            resize: none;
+        }
+
+        .form-box button {
+            width: 100%;
+            padding: 12px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .review-list {
+            flex: 1;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .review-item {
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+        }
+
+        .review-item:last-child {
+            border-bottom: none;
+        }
+
+        .review-item h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .review-item p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="logo.jpg" alt="Logo">
+        </div>
+       <div class="search-bar">
+    <input type="text" placeholder="Search for a professor...">
+    <button type="button" class="search-button">Search</button>
+</div>
+
+        <div class="nav-buttons">
+            <a href="home.html">Home</a>
+            <a href="user-profile.html">Profile</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Review Submission Form -->
+        <div class="form-box">
+            <h2>Create a Review</h2>
+            <form>
+                <input type="text" placeholder="Professor Name" required>
+                <input type="text" placeholder="Course ID" required>
+                <input type="text" placeholder="Class Name" required>
+                <textarea rows="6" placeholder="Write your review here..." required></textarea>
+                <button type="submit">Create Review</button>
+            </form>
+        </div>
+
+        <!-- Reviews Display Section -->
+        <div class="review-list">
+            <h2>Recent Reviews</h2>
+
+            <!-- Placeholder Review 1 -->
+            <div class="review-item">
+                <h3>Professor Jane Doe</h3>
+                <p><strong>Course ID:</strong> CS101</p>
+                <p><strong>Class Name:</strong> Intro to Programming</p>
+                <p>"Great lectures, clear explanations, and helpful feedback."</p>
+            </div>
+
+            <!-- Placeholder Review 2 -->
+            <div class="review-item">
+                <h3>Professor John Smith</h3>
+                <p><strong>Course ID:</strong> MATH201</p>
+                <p><strong>Class Name:</strong> Calculus II</p>
+                <p>"Challenging material but fair exams. Highly recommended."</p>
+            </div>
+
+            <!-- Add more placeholder entries as needed -->
+        </div>
+    </div>
+</body>
+</html>
