@@ -1,10 +1,10 @@
 package com.example.reviewapp.entity;
 
 import jakarta.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "professors")
 public class Professor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,16 +14,9 @@ public class Professor {
     private String department;
     
     @OneToMany(mappedBy = "professor", cascade = CascadeType.ALL)
-    private List<Review> reviews = new ArrayList<>();
+    private List<Review> reviews;
     
-    public Professor() {
-    }
-    
-    public Professor(String name, String department) {
-        this.name = name;
-        this.department = department;
-    }
-    
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -56,4 +49,3 @@ public class Professor {
         this.reviews = reviews;
     }
 }
-

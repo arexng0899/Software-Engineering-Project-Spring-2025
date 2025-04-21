@@ -1,0 +1,87 @@
+package com.example.reviewapp.controller;
+
+import com.example.reviewapp.entity.Professor;
+import com.example.reviewapp.repository.ProfessorRepository;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@WebMvcTest(ProfessorController.class)
+public class ProfessorControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    private ProfessorRepository professorRepository;
+
+    @Test
+    public void testGetAllProfessors() throws Exception {
+        Professor prof1 = new Professor("John Doe", "Computer Science");
+        Professor prof2 = new Professor("Jane Smith", "Mathematics");
+        List<Professor> professors = Arrays.asList(prof1, prof2);
+        
+        when(professorRepository.findAll()).thenReturn(professors);
+
+        mockMvc.perform(get("/professors"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].name", is("John Doe")))
+                .andExpect(jsonPath("$[1].name", is("Jane Smith")));
+        
+        verify(professorRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void testGetProfessorById() throws Exception {
+        Professor professor = new Professor("John Doe", "Computer Science");
+        professor.setId(1L);
+        
+        when(professorRepository.findById(1L)).thenReturn(Optional.of(professor));
+
+        mockMvc.perform(get("/professors/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", is("John Doe")))
+                .andExpect(jsonPath("$.department", is("Computer Science")));
+        
+        verify(professorRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    public void testGetProfessorById_NotFound() throws Exception {
+        when(professorRepository.findById(1L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/professors/1"))
+                .andExpect(status().isNotFound());
+        
+        verify(professorRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    public void testCreateProfessor() throws Exception {
+        Professor professor = new Professor("John Doe", "Computer Science");
+        professor.setId(1L);
+        
+        when(professorRepository.save(any(Professor.class))).thenReturn(professor);
+
+        mockMvc.perform(post("/professors")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"John Doe\",\"department\":\"Computer Science\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", is("John Doe")))
+                .andExpect(jsonPath("$.department", is("Computer Science")));
+        
+        verify(professorRepository, times(1)).save(any(Professor.class));
+    }
+}

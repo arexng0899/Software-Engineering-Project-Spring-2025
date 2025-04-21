@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Home - Professor Ratings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+        }
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 40px 20px 20px;
+            position: relative;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .header-left h1 {
+            font-size: 48px;
+            margin: 0;
+        }
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin-top: 10px;
+        }
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .nav-section {
+            display: flex;
+            gap: 10px;
+        }
+        .nav-section a {
+            background-color: #555;
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .profile-picture {
+            width: 50px;
+            height: 50px;
+            background-color: #555;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+        .welcome {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .welcome h2 {
+            margin: 10px 0 5px;
+            font-size: 28px;
+        }
+        .welcome p {
+            font-size: 16px;
+            margin: 0;
+        }
+        .main-content {
+            text-align: center;
+            margin-top: 60px;
+        }
+        .main-content h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        .main-content a {
+            display: inline-block;
+            margin: 10px;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-top">
+            <div class="header-left">
+                <h1>Professor Ratings</h1>
+                <div class="logo">
+                    <img src="logo.jpg" alt="Logo">
+                </div>
+            </div>
+            <div class="nav-section">
+                <a href="review.html">Reviews</a>
+                <a href="user-profile.html" class="profile-picture">Profile</a>
+            </div>
+        </div>
+        <div class="welcome">
+            <h2>Welcome to Professor Ratings!</h2>
+            <p>Learn about and share professor reviews here.</p>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h2>Login / Signup</h2>
+        <a href="login.html">Login</a>
+        <a href="signup.html">Signup</a>
+    </div>
+</body>
+</html>
