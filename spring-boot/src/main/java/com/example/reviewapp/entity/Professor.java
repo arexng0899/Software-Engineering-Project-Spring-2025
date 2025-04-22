@@ -8,12 +8,20 @@ import java.util.List;
 public class Professor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "professor_id")
     private Long id;
     
-    private String name;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+    
+    @Column(name = "department")
     private String department;
     
-    @OneToMany(mappedBy = "professor", cascade = CascadeType.ALL)
+    @Column(name = "university")
+    private String university;
+    
+    @OneToMany(mappedBy = "professor")
     private List<Review> reviews;
     
     // Getters and Setters
@@ -25,12 +33,12 @@ public class Professor {
         this.id = id;
     }
     
-    public String getName() {
-        return name;
+    public User getUser() {
+        return user;
     }
     
-    public void setName(String name) {
-        this.name = name;
+    public void setUser(User user) {
+        this.user = user;
     }
     
     public String getDepartment() {
@@ -41,11 +49,24 @@ public class Professor {
         this.department = department;
     }
     
+    public String getUniversity() {
+        return university;
+    }
+    
+    public void setUniversity(String university) {
+        this.university = university;
+    }
+    
     public List<Review> getReviews() {
         return reviews;
     }
     
     public void setReviews(List<Review> reviews) {
         this.reviews = reviews;
+    }
+    
+    // Helper method to get professor's name from associated user
+    public String getName() {
+        return user != null ? user.getUsername() : null;
     }
 }
