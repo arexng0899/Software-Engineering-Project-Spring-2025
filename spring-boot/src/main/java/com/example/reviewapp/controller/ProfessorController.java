@@ -1,23 +1,17 @@
 package com.example.reviewapp.controller;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.example.reviewapp.entity.Professor;
 import com.example.reviewapp.entity.Review;
 import com.example.reviewapp.service.ProfessorService;
 import com.example.reviewapp.service.ReviewService;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/professors")
@@ -29,14 +23,24 @@ public class ProfessorController {
     private ReviewService reviewService;
     
     @GetMapping
-    public String getAllProfessors(Model model) {
+    public String getAllProfessors(Model model, HttpSession session) {
+        // Check if user is logged in
+        if (session.getAttribute("userId") == null) {
+            return "redirect:/login";
+        }
+        
         List<Professor> professors = professorService.findAll();
         model.addAttribute("professors", professors);
         return "professors";
     }
     
     @GetMapping("/{id}")
-    public String getProfessorById(@PathVariable Long id, Model model) {
+    public String getProfessorById(@PathVariable Long id, Model model, HttpSession session) {
+        // Check if user is logged in
+        if (session.getAttribute("userId") == null) {
+            return "redirect:/login";
+        }
+        
         Optional<Professor> professorOpt = professorService.findById(id);
         if (professorOpt.isPresent()) {
             Professor professor = professorOpt.get();
@@ -50,17 +54,30 @@ public class ProfessorController {
     }
     
     @GetMapping("/search")
-    public String searchProfessors(@RequestParam String query, @RequestParam(required = false) String searchType, Model model) {
+    public String searchProfessors(
+            @RequestParam String query, 
+            @RequestParam(required = false) String searchType, 
+            Model model,
+            HttpSession session) {
+        
+        // Check if user is logged in
+        if (session.getAttribute("userId") == null) {
+            return "redirect:/login";
+        }
+        
         List<Professor> professors;
         
         if (searchType != null && searchType.equals("department")) {
             professors = professorService.searchByDepartment(query);
             model.addAttribute("searchType", "department");
+        } else if (searchType != null && searchType.equals("university")) {
+            professors = professorService.searchByUniversity(query);
+            model.addAttribute("searchType", "university");
         } else if (searchType != null && searchType.equals("name")) {
-            professors = professorService.searchByName(query);
+            professors = professorService.searchByUsername(query);
             model.addAttribute("searchType", "name");
         } else {
-            professors = professorService.searchByNameOrDepartment(query);
+            professors = professorService.searchByAll(query);
             model.addAttribute("searchType", "all");
         }
         
@@ -86,9 +103,21 @@ public class ProfessorController {
             return professorService.findById(id).orElse(null);
         }
         
-        @PostMapping
-        public Professor createProfessor(@RequestBody Professor professor) {
-            return professorService.save(professor);
+        @GetMapping("/search")
+        public List<Professor> searchProfessors(
+                @RequestParam String query,
+                @RequestParam(required = false) String searchType) {
+            
+            if (searchType != null && searchType.equals("department")) {
+                return professorService.searchByDepartment(query);
+            } else if (searchType != null && searchType.equals("university")) {
+                return professorService.searchByUniversity(query);
+            } else if (searchType != null && searchType.equals("name")) {
+                return professorService.searchByUsername(query);
+            } else {
+                return professorService.searchByAll(query);
+            }
         }
     }
 }
+
