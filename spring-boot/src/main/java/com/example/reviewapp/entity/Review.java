@@ -13,6 +13,7 @@ public class Review {
     private String courseId;
     private String className;
     private String content;
+    private Integer rating;
     private LocalDateTime createdAt;
     
     @ManyToOne
@@ -20,8 +21,8 @@ public class Review {
     private Professor professor;
     
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "student_id")
+    private Student student;
     
     // Getters and Setters
     public Long getId() {
@@ -56,6 +57,14 @@ public class Review {
         this.content = content;
     }
     
+    public Integer getRating() {
+        return rating;
+    }
+    
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
+    
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -72,12 +81,12 @@ public class Review {
         this.professor = professor;
     }
     
-    public User getUser() {
-        return user;
+    public Student getStudent() {
+        return student;
     }
     
-    public void setUser(User user) {
-        this.user = user;
+    public void setStudent(Student student) {
+        this.student = student;
     }
     
     @PrePersist
