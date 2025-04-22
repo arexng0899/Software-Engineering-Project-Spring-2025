@@ -1,21 +1,38 @@
 package com.example.reviewapp.entity;
 
 import jakarta.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
     
-    private String name;
+    @Column(name = "username", nullable = false, unique = true)
+    private String username;
+    
+    @Column(name = "email")
     private String email;
+    
+    @Column(name = "password")
     private String password;
     
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Review> reviews;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private UserRole role;
+    
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Student student;
+    
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Professor professor;
+    
+    // Enum for user roles
+    public enum UserRole {
+        student, professor, admin
+    }
     
     // Getters and Setters
     public Long getId() {
@@ -26,12 +43,12 @@ public class User {
         this.id = id;
     }
     
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
     
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String username) {
+        this.username = username;
     }
     
     public String getEmail() {
@@ -50,11 +67,42 @@ public class User {
         this.password = password;
     }
     
-    public List<Review> getReviews() {
-        return reviews;
+    public UserRole getRole() {
+        return role;
     }
     
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+    
+    public Student getStudent() {
+        return student;
+    }
+    
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+    
+    public Professor getProfessor() {
+        return professor;
+    }
+    
+    public void setProfessor(Professor professor) {
+        this.professor = professor;
+    }
+    
+    // Helper method to check if user is a student
+    public boolean isStudent() {
+        return role == UserRole.student;
+    }
+    
+    // Helper method to check if user is a professor
+    public boolean isProfessor() {
+        return role == UserRole.professor;
+    }
+    
+    // Helper method to check if user is an admin
+    public boolean isAdmin() {
+        return role == UserRole.admin;
     }
 }
