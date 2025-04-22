@@ -2,12 +2,13 @@ package com.example.reviewapp.service;
 
 import com.example.reviewapp.entity.Professor;
 import com.example.reviewapp.entity.Review;
-import com.example.reviewapp.entity.User;
+import com.example.reviewapp.entity.Student;
 import com.example.reviewapp.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ReviewService {
@@ -22,11 +23,15 @@ public class ReviewService {
         return reviewRepository.findByProfessor(professor);
     }
     
-    public List<Review> findByUser(User user) {
-        return reviewRepository.findByUser(user);
+    public List<Review> findByStudent(Student student) {
+        return reviewRepository.findByStudent(student);
     }
     
     public List<Review> findRecentReviews() {
         return reviewRepository.findTop10ByOrderByCreatedAtDesc();
+    }
+    
+    public Optional<Review> findById(Long id) {
+        return reviewRepository.findById(id);
     }
 }
