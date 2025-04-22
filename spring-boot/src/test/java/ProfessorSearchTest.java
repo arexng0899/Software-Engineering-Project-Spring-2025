@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
 
-public class ProfessorListDisplayTest {
+public class ProfessorSearchTest{
 
     private ProfessorListDisplay display;
 
