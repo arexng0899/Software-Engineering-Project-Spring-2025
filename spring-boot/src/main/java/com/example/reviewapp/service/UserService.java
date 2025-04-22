@@ -16,16 +16,20 @@ public class UserService {
         return userRepository.save(user);
     }
     
-    public Optional<User> findByName(String name) {
-        return userRepository.findByName(name);
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
     
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
     
-    public boolean authenticate(String name, String password) {
-        Optional<User> userOpt = userRepository.findByName(name);
+    public boolean authenticate(String username, String password) {
+        Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent()) {
             return userOpt.get().getPassword().equals(password);
         }
@@ -35,4 +39,9 @@ public class UserService {
     public boolean emailExists(String email) {
         return userRepository.existsByEmail(email);
     }
+    
+    public boolean usernameExists(String username) {
+        return userRepository.existsByUsername(username);
+    }
 }
+
