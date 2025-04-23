@@ -96,6 +96,7 @@
             border-radius: 6px;
             font-size: 18px;
             min-width: 120px;
+            text-align: center;
         }
         .recent-reviews {
             max-width: 800px;
@@ -132,7 +133,7 @@
             <div class="nav-section" th:if="${isLoggedIn}">
                 <a th:href="@{/reviews}">Reviews</a>
                 <a th:href="@{/professors}">Professors</a>
-                <a th:href="@{/profile}" class="profile-picture">Profile</a>
+                <a th:href="@{/profile}">Profile</a>
             </div>
         </div>
         <div class="welcome">
