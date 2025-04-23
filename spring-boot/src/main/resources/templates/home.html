@@ -52,6 +52,8 @@
             padding: 8px 12px;
             border-radius: 4px;
             font-size: 16px;
+            min-width: 80px;
+            text-align: center;
         }
         .profile-picture {
             width: 50px;
@@ -93,6 +95,28 @@
             padding: 12px 20px;
             border-radius: 6px;
             font-size: 18px;
+            min-width: 120px;
+        }
+        .recent-reviews {
+            max-width: 800px;
+            margin: 40px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+        .review-item {
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+            text-align: left;
+        }
+        .review-item:last-child {
+            border-bottom: none;
+        }
+        .rating {
+            color: #f8ce0b;
+            font-size: 18px;
+            letter-spacing: 3px;
         }
     </style>
 </head>
@@ -102,12 +126,13 @@
             <div class="header-left">
                 <h1>Professor Ratings</h1>
                 <div class="logo">
-                    <img src="logo.jpg" alt="Logo">
+                    <img th:src="@{/images/logo.jpg}" alt="Logo">
                 </div>
             </div>
-            <div class="nav-section">
-                <a href="review.html">Reviews</a>
-                <a href="user-profile.html" class="profile-picture">Profile</a>
+            <div class="nav-section" th:if="${isLoggedIn}">
+                <a th:href="@{/reviews}">Reviews</a>
+                <a th:href="@{/professors}">Professors</a>
+                <a th:href="@{/profile}" class="profile-picture">Profile</a>
             </div>
         </div>
         <div class="welcome">
@@ -116,10 +141,30 @@
         </div>
     </div>
 
-    <div class="main-content">
+    <div class="main-content" th:unless="${isLoggedIn}">
         <h2>Login / Signup</h2>
-        <a href="login.html">Login</a>
-        <a href="signup.html">Signup</a>
+        <a th:href="@{/login}">Login</a>
+        <a th:href="@{/signup}">Signup</a>
+    </div>
+    
+    <div class="main-content" th:if="${isLoggedIn}">
+        <h2>What would you like to do?</h2>
+        <a th:href="@{/reviews}">Write a Review</a>
+        <a th:href="@{/professors}">Browse Professors</a>
+    </div>
+    
+    <div class="recent-reviews" th:if="${recentReviews != null && !#lists.isEmpty(recentReviews)}">
+        <h2>Recent Reviews</h2>
+        <div class="review-item" th:each="review : ${recentReviews}">
+            <h3 th:text="${review.professor.getName()}">Professor Name</h3>
+            <div class="rating">
+                <span th:each="i : ${#numbers.sequence(1, 5)}" th:text="${i <= review.rating ? '★' : '☆'}"></span>
+            </div>
+            <p><strong>Course ID:</strong> <span th:text="${review.courseId}">CS101</span></p>
+            <p><strong>Class Name:</strong> <span th:text="${review.className}">Class Name</span></p>
+            <p th:text="${review.content}">Review content</p>
+            <p class="review-date" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd')}">2023-01-01</p>
+        </div>
     </div>
 </body>
 </html>

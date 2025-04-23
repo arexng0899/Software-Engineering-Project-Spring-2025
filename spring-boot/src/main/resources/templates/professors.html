@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Professors</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .search-bar {
+            flex: 1;
+            margin: 0 40px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .search-bar input {
+            width: 60%;
+            padding: 8px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .search-button {
+            padding: 8px 16px;
+            font-size: 16px;
+            background-color: #555;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-buttons a {
+            background-color: #555;
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .professor-list {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+
+        .professor-item {
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .professor-item:last-child {
+            border-bottom: none;
+        }
+
+        .professor-item h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .professor-item p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .view-button {
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-results {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .search-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-button {
+            padding: 8px 16px;
+            background-color: #ddd;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .filter-button.active {
+            background-color: #333;
+            color: white;
+        }
+        
+        .add-professor-button {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img th:src="@{/images/logo.jpg}" alt="Logo">
+        </div>
+        <form th:action="@{/professors/search}" method="get" class="search-bar">
+            <input type="text" name="query" placeholder="Search for a professor..." th:value="${query}">
+            <select name="searchType" style="padding: 8px; border: none; border-radius: 4px;">
+                <option value="all" th:selected="${searchType == 'all'}">All</option>
+                <option value="name" th:selected="${searchType == 'name'}">Name</option>
+                <option value="department" th:selected="${searchType == 'department'}">Department</option>
+                <option value="university" th:selected="${searchType == 'university'}">University</option>
+            </select>
+            <button type="submit" class="search-button">Search</button>
+        </form>
+
+        <div class="nav-buttons">
+            <a th:href="@{/}">Home</a>
+            <a th:href="@{/reviews}">Reviews</a>
+            <a th:href="@{/profile}">Profile</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div th:if="${query}" class="search-results">
+            Search results for: <strong th:text="${query}">query</strong>
+            <span th:if="${searchType != 'all'}">
+                in <strong th:text="${searchType}">category</strong>
+            </span>
+        </div>
+        
+        <div class="search-filters">
+            <form th:action="@{/professors/search}" method="get">
+                <input type="hidden" name="query" value="Math">
+                <input type="hidden" name="searchType" value="department">
+                <button type="submit" class="filter-button" th:classappend="${query == 'Math' && searchType == 'department'} ? 'active' : ''">
+                    Math Department
+                </button>
+            </form>
+            
+            <form th:action="@{/professors/search}" method="get">
+                <input type="hidden" name="query" value="Computer Science">
+                <input type="hidden" name="searchType" value="department">
+                <button type="submit" class="filter-button" th:classappend="${query == 'Computer Science' && searchType == 'department'} ? 'active' : ''">
+                    Computer Science Department
+                </button>
+            </form>
+            
+            <form th:action="@{/professors/search}" method="get">
+                <input type="hidden" name="query" value="Physics">
+                <input type="hidden" name="searchType" value="department">
+                <button type="submit" class="filter-button" th:classappend="${query == 'Physics' && searchType == 'department'} ? 'active' : ''">
+                    Physics Department
+                </button>
+            </form>
+        </div>
+        
+        <!-- Add button to create a new professor -->
+        <div style="text-align: right; margin-bottom: 20px;">
+            <a th:href="@{/professors/create}" class="add-professor-button">Add New Professor</a>
+        </div>
+
+        <div class="professor-list">
+            <h2>Professors</h2>
+
+            <div th:if="${#lists.isEmpty(professors)}">
+                <p>No professors found.</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(professors)}">
+                <div class="professor-item" th:each="professor : ${professors}">
+                    <div>
+                        <h3 th:text="${professor.getName()}">Professor Name</h3>
+                        <p th:if="${professor.department}" th:text="${professor.department}">Department</p>
+                        <p th:if="${professor.university}" th:text="${professor.university}">University</p>
+                    </div>
+                    <a th:href="@{/professors/{id}(id=${professor.id})}" class="view-button">View Reviews</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

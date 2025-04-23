@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProfessorRepository extends JpaRepository<Professor, Long> {
+public interface ProfessorRepository extends JpaRepository<Professor, Integer> {
     Optional<Professor> findByUser(User user);
     List<Professor> findByDepartmentContainingIgnoreCase(String department);
     List<Professor> findByUniversityContainingIgnoreCase(String university);

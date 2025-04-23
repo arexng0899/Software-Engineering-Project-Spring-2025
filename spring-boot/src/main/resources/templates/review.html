@@ -34,31 +34,30 @@
         }
 
         .search-bar {
-    flex: 1;
-    margin: 0 40px;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
+            flex: 1;
+            margin: 0 40px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
 
-.search-bar input {
-    width: 60%;
-    padding: 8px;
-    font-size: 16px;
-    border: none;
-    border-radius: 4px;
-}
+        .search-bar input {
+            width: 60%;
+            padding: 8px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+        }
 
-.search-button {
-    padding: 8px 16px;
-    font-size: 16px;
-    background-color: #555;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
+        .search-button {
+            padding: 8px 16px;
+            font-size: 16px;
+            background-color: #555;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
         .nav-buttons {
             display: flex;
@@ -88,7 +87,7 @@
             box-shadow: 0 0 8px rgba(0,0,0,0.1);
         }
 
-        .form-box input, .form-box textarea {
+        .form-box input, .form-box textarea, .form-box select {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
@@ -136,21 +135,90 @@
         .review-item p {
             margin: 5px 0;
         }
+        
+        .success-message {
+            background-color: #dff0d8;
+            color: #3c763d;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        .error-message {
+            background-color: #f2dede;
+            color: #a94442;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        .rating {
+            color: #f8ce0b;
+            font-size: 18px;
+            letter-spacing: 3px;
+        }
+        
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            gap: 5px;
+            margin: 10px 0;
+            justify-content: flex-end;
+        }
+        
+        .star-rating input {
+            display: none;
+        }
+        
+        .star-rating label {
+            cursor: pointer;
+            font-size: 24px;
+            color: #ddd;
+        }
+        
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input:checked ~ label {
+            color: #f8ce0b;
+        }
+        
+        .delete-button {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .delete-button:hover {
+            background-color: #c9302c;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="logo">
-            <img src="logo.jpg" alt="Logo">
+            <img th:src="@{/images/logo.jpg}" alt="Logo">
         </div>
-       <div class="search-bar">
-    <input type="text" placeholder="Search for a professor...">
-    <button type="button" class="search-button">Search</button>
-</div>
+        <form th:action="@{/professors/search}" method="get" class="search-bar">
+            <input type="text" name="query" placeholder="Search for a professor...">
+            <select name="searchType" style="padding: 8px; border: none; border-radius: 4px;">
+                <option value="all">All</option>
+                <option value="name">Name</option>
+                <option value="department">Department</option>
+                <option value="university">University</option>
+            </select>
+            <button type="submit" class="search-button">Search</button>
+        </form>
 
         <div class="nav-buttons">
-            <a href="home.html">Home</a>
-            <a href="user-profile.html">Profile</a>
+            <a th:href="@{/}">Home</a>
+            <a th:href="@{/professors}">Professors</a>
+            <a th:href="@{/profile}">Profile</a>
+            <a th:href="@{/logout}">Logout</a>
         </div>
     </div>
 
@@ -158,37 +226,96 @@
         <!-- Review Submission Form -->
         <div class="form-box">
             <h2>Create a Review</h2>
-            <form>
-                <input type="text" placeholder="Professor Name" required>
-                <input type="text" placeholder="Course ID" required>
-                <input type="text" placeholder="Class Name" required>
-                <textarea rows="6" placeholder="Write your review here..." required></textarea>
+            <div th:if="${success}" class="success-message" th:text="${success}">Review submitted successfully!</div>
+            <div th:if="${error}" class="error-message" th:text="${error}"></div>
+            <form th:action="@{/reviews}" method="post" id="reviewForm">
+                <label for="professorId">Select Professor:</label>
+                <select id="professorId" name="professorId" required>
+                    <option value="">-- Select a Professor --</option>
+                    <option th:each="prof : ${professors}" 
+                            th:value="${prof.id}" 
+                            th:text="${prof.getName() + ' - ' + prof.department + ' (' + prof.university + ')'}">
+                        Professor Name - Department (University)
+                    </option>
+                </select>
+                
+                <input type="text" name="courseId" placeholder="Course ID" required>
+                <input type="text" name="className" placeholder="Class Name" required>
+                
+                <label>Rating:</label>
+                <div class="star-rating">
+                    <input type="radio" id="star1" name="rating" value="1" required>
+                    <label for="star1">★</label>
+                    <input type="radio" id="star2" name="rating" value="2">
+                    <label for="star2">★</label>
+                    <input type="radio" id="star3" name="rating" value="3">
+                    <label for="star3">★</label>
+                    <input type="radio" id="star4" name="rating" value="4">
+                    <label for="star4">★</label>
+                    <input type="radio" id="star5" name="rating" value="5">
+                    <label for="star5">★</label>
+                </div>
+                
+                <textarea name="content" rows="6" placeholder="Write your review here..." required></textarea>
                 <button type="submit">Create Review</button>
             </form>
+            
+            <div style="margin-top: 20px; text-align: center;">
+                <a th:href="@{/professors/create}" style="color: #333; text-decoration: none;">
+                    Can't find your professor? Create a new professor profile
+                </a>
+            </div>
         </div>
 
         <!-- Reviews Display Section -->
         <div class="review-list">
             <h2>Recent Reviews</h2>
 
-            <!-- Placeholder Review 1 -->
-            <div class="review-item">
-                <h3>Professor Jane Doe</h3>
-                <p><strong>Course ID:</strong> CS101</p>
-                <p><strong>Class Name:</strong> Intro to Programming</p>
-                <p>"Great lectures, clear explanations, and helpful feedback."</p>
+            <div th:if="${#lists.isEmpty(reviews)}">
+                <p>No reviews found. Be the first to write a review!</p>
             </div>
 
-            <!-- Placeholder Review 2 -->
-            <div class="review-item">
-                <h3>Professor John Smith</h3>
-                <p><strong>Course ID:</strong> MATH201</p>
-                <p><strong>Class Name:</strong> Calculus II</p>
-                <p>"Challenging material but fair exams. Highly recommended."</p>
+            <div th:unless="${#lists.isEmpty(reviews)}">
+                <div class="review-item" th:each="review : ${reviews}">
+                    <h3 th:text="${review.professor.getName()}">Professor Name</h3>
+                    <div class="rating">
+                        <span th:each="i : ${#numbers.sequence(1, 5)}" th:text="${i <= review.rating ? '★' : '☆'}"></span>
+                    </div>
+                    <p><strong>Course ID:</strong> <span th:text="${review.courseId}">CS101</span></p>
+                    <p><strong>Class Name:</strong> <span th:text="${review.className}">Class Name</span></p>
+                    <p th:text="${review.content}">Review content</p>
+                    <p class="review-date" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd')}">2023-01-01</p>
+                    
+                    <!-- Add delete button if the review belongs to the current user -->
+                    <div th:if="${session.userId != null && review.student != null && review.student.user != null && review.student.user.id == session.userId}">
+                        <form th:action="@{/reviews/delete/{id}(id=${review.id})}" method="post">
+                            <button type="submit" class="delete-button">Delete Review</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-
-            <!-- Add more placeholder entries as needed -->
         </div>
     </div>
+
+    <script>
+        // Show success message when form is submitted successfully
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const success = urlParams.get('success');
+            if (success) {
+                const successMessage = document.createElement('div');
+                successMessage.className = 'success-message';
+                successMessage.textContent = 'Review submitted successfully!';
+                
+                const formBox = document.querySelector('.form-box');
+                formBox.insertBefore(successMessage, formBox.firstChild.nextSibling);
+                
+                // Hide the message after 5 seconds
+                setTimeout(function() {
+                    successMessage.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+        }
+        .header {
+            background-color: #333;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            font-size: 24px;
+            position: relative;
+            text-align: center;
+        }
+        .header-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .logo {
+            width: 50px;
+            height: 50px;
+        }
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-right: 10px;
+        }
+        .nav-buttons a {
+            background-color: #555;
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .content {
+            max-width: 600px;
+            margin: 30px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .button-group button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .button-group a {
+            padding: 10px 20px;
+            background-color: #777;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .error {
+            color: red;
+            margin-bottom: 15px;
+        }
+        .password-link {
+            display: block;
+            margin-top: 10px;
+            color: #333;
+            text-decoration: none;
+        }
+        .password-link:hover {
+            text-decoration: underline;
+        }
+        .current-profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img th:src="@{/images/logo.jpg}" alt="Logo">
+        </div>
+        <div class="header-title">Edit Profile</div>
+        <div class="nav-buttons">
+            <a th:href="@{/}">Home</a>
+            <a th:href="@{/profile}">Back to Profile</a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div th:if="${error}" class="error" th:text="${error}"></div>
+        
+        <form th:action="@{/profile/update}" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" th:value="${user.username}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" th:value="${user.email}" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Profile Picture:</label>
+                <div th:if="${user.profilePicture}">
+                    <img th:src="${user.profilePicture}" alt="Profile Picture" class="current-profile-pic">
+                    <p>Current profile picture</p>
+                </div>
+                <input type="file" id="profilePicture" name="profilePicture" accept="image/*">
+                <small>Upload a new profile picture (optional)</small>
+            </div>
+            
+            <!-- Student-specific fields -->
+            <div th:if="${user.isStudent() && student != null}">
+                <div class="form-group">
+                    <label for="studyHoursPerWeek">Study Hours Per Week:</label>
+                    <input type="number" id="studyHoursPerWeek" name="studyHoursPerWeek" 
+                           th:value="${student.studyHoursPerWeek}" min="0" max="168">
+                </div>
+            </div>
+            
+            <!-- Professor-specific fields (read-only) -->
+            <div th:if="${user.isProfessor() && professor != null}">
+                <div class="form-group">
+                    <label for="department">Department:</label>
+                    <input type="text" id="department" th:value="${professor.department}" readonly>
+                    <small>Contact admin to update department information</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="university">University:</label>
+                    <input type="text" id="university" th:value="${professor.university}" readonly>
+                    <small>Contact admin to update university information</small>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <a th:href="@{/profile/change-password}" class="password-link">Change Password</a>
+            </div>
+            
+            <div class="button-group">
+                <a th:href="@{/profile}">Cancel</a>
+                <button type="submit">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

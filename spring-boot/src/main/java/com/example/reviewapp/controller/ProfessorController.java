@@ -2,8 +2,10 @@ package com.example.reviewapp.controller;
 
 import com.example.reviewapp.entity.Professor;
 import com.example.reviewapp.entity.Review;
+import com.example.reviewapp.entity.User;
 import com.example.reviewapp.service.ProfessorService;
 import com.example.reviewapp.service.ReviewService;
+import com.example.reviewapp.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/professors")
@@ -21,6 +24,9 @@ public class ProfessorController {
     
     @Autowired
     private ReviewService reviewService;
+    
+    @Autowired
+    private UserService userService;
     
     @GetMapping
     public String getAllProfessors(Model model, HttpSession session) {
@@ -35,7 +41,7 @@ public class ProfessorController {
     }
     
     @GetMapping("/{id}")
-    public String getProfessorById(@PathVariable Long id, Model model, HttpSession session) {
+    public String getProfessorById(@PathVariable Integer id, Model model, HttpSession session) {
         // Check if user is logged in
         if (session.getAttribute("userId") == null) {
             return "redirect:/login";
@@ -86,6 +92,55 @@ public class ProfessorController {
         return "professors";
     }
     
+    @GetMapping("/create")
+    public String showCreateProfessorForm(Model model, HttpSession session) {
+        // Check if user is logged in
+        if (session.getAttribute("userId") == null) {
+            return "redirect:/login";
+        }
+        
+        model.addAttribute("professor", new Professor());
+        return "create-professor";
+    }
+    
+    @PostMapping("/create")
+    public String createProfessor(
+            @RequestParam String username,
+            @RequestParam String department,
+            @RequestParam String university,
+            HttpSession session,
+            Model model) {
+        
+        // Check if user is logged in
+        if (session.getAttribute("userId") == null) {
+            return "redirect:/login";
+        }
+        
+        // Check if username already exists
+        if (userService.usernameExists(username)) {
+            model.addAttribute("error", "A professor with this username already exists");
+            return "create-professor";
+        }
+        
+        // Create user for professor
+        User user = new User();
+        user.setUsername(username);
+        // Generate a random email since we don't collect it anymore
+        user.setEmail(username.replaceAll("\\s+", ".").toLowerCase() + "@university.edu");
+        user.setPassword("professor123"); // Default password
+        user.setRole(User.UserRole.professor);
+        User savedUser = userService.createUser(user);
+        
+        // Create professor profile
+        Professor professor = new Professor();
+        professor.setUser(savedUser);
+        professor.setDepartment(department);
+        professor.setUniversity(university);
+        professorService.save(professor);
+        
+        return "redirect:/professors";
+    }
+    
     // REST endpoints for API access
     @RestController
     @RequestMapping("/api/professors")
@@ -99,7 +154,7 @@ public class ProfessorController {
         }
         
         @GetMapping("/{id}")
-        public Professor getProfessorById(@PathVariable Long id) {
+        public Professor getProfessorById(@PathVariable Integer id) {
             return professorService.findById(id).orElse(null);
         }
         
@@ -120,4 +175,3 @@ public class ProfessorController {
         }
     }
 }
-

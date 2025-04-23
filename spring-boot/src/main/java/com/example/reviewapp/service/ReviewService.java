@@ -31,7 +31,11 @@ public class ReviewService {
         return reviewRepository.findTop10ByOrderByCreatedAtDesc();
     }
     
-    public Optional<Review> findById(Long id) {
+    public Optional<Review> findById(Integer id) {
         return reviewRepository.findById(id);
+    }
+    
+    public void delete(Integer id) {
+        reviewRepository.deleteById(id);
     }
 }

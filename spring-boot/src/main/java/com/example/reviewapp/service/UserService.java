@@ -24,7 +24,7 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public Optional<User> findById(Long id) {
+    public Optional<User> findById(Integer id) {
         return userRepository.findById(id);
     }
     
@@ -44,4 +44,3 @@ public class UserService {
         return userRepository.existsByUsername(username);
     }
 }
-

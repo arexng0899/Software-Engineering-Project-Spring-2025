@@ -35,7 +35,7 @@ public class ReviewController {
     @GetMapping
     public String reviewPage(Model model, HttpSession session) {
         // Check if user is logged in
-        Long userId = (Long) session.getAttribute("userId");
+        Integer userId = (Integer) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/login";
         }
@@ -66,7 +66,7 @@ public class ReviewController {
     
     @PostMapping
     public String createReview(
-            @RequestParam Long professorId,
+            @RequestParam Integer professorId,
             @RequestParam String courseId,
             @RequestParam String className,
             @RequestParam String content,
@@ -75,7 +75,7 @@ public class ReviewController {
             Model model) {
         
         // Check if user is logged in
-        Long userId = (Long) session.getAttribute("userId");
+        Integer userId = (Integer) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/login";
         }
@@ -124,6 +124,34 @@ public class ReviewController {
         return "redirect:/reviews";
     }
     
+    @PostMapping("/delete/{id}")
+    public String deleteReview(@PathVariable Integer id, HttpSession session, Model model) {
+        // Check if user is logged in
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/login";
+        }
+        
+        // Get the review
+        Optional<Review> reviewOpt = reviewService.findById(id);
+        if (reviewOpt.isEmpty()) {
+            return "redirect:/reviews";
+        }
+        
+        Review review = reviewOpt.get();
+        
+        // Check if the user is the owner of the review
+        if (!review.getStudent().getUser().getId().equals(userId)) {
+            model.addAttribute("error", "You can only delete your own reviews");
+            return "redirect:/reviews";
+        }
+        
+        // Delete the review
+        reviewService.delete(id);
+        
+        return "redirect:/reviews";
+    }
+    
     // REST endpoints for API access
     @RestController
     @RequestMapping("/api/reviews")
@@ -135,7 +163,7 @@ public class ReviewController {
         private ProfessorService professorService;
         
         @GetMapping("/professor/{professorId}")
-        public List<Review> getReviewsByProfessor(@PathVariable Long professorId) {
+        public List<Review> getReviewsByProfessor(@PathVariable Integer professorId) {
             Optional<Professor> professorOpt = professorService.findById(professorId);
             return professorOpt.map(reviewService::findByProfessor).orElse(null);
         }

@@ -8,7 +8,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long id;
+    private Integer id;
     
     @Column(name = "username", nullable = false, unique = true)
     private String username;
@@ -28,18 +28,19 @@ public class User {
     
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Professor professor;
+
+    @Column(name = "profile_picture")
+    private String profilePicture;
     
-    // Enum for user roles
     public enum UserRole {
         student, professor, admin
     }
     
-    // Getters and Setters
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
     
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
     
@@ -104,5 +105,13 @@ public class User {
     // Helper method to check if user is an admin
     public boolean isAdmin() {
         return role == UserRole.admin;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+    
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }

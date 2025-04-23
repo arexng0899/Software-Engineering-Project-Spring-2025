@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${professor.getName()} + ' - Reviews'">Professor Reviews</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-buttons a {
+            background-color: #555;
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .professor-info {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .professor-info h1 {
+            margin-top: 0;
+            font-size: 24px;
+        }
+
+        .professor-info p {
+            color: #666;
+        }
+
+        .review-list {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+
+        .review-item {
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+        }
+
+        .review-item:last-child {
+            border-bottom: none;
+        }
+
+        .review-item h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .review-item p {
+            margin: 5px 0;
+        }
+
+        .review-date {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .rating {
+            color: #f8ce0b;
+            font-size: 18px;
+            letter-spacing: 3px;
+        }
+        
+        .delete-button {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .delete-button:hover {
+            background-color: #c9302c;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img th:src="@{/images/logo.jpg}" alt="Logo">
+        </div>
+
+        <div class="nav-buttons">
+            <a th:href="@{/}">Home</a>
+            <a th:href="@{/reviews}">Reviews</a>
+            <a th:href="@{/professors}">Professors</a>
+            <a th:href="@{/profile}">Profile</a>
+        </div>
+    </div>
+
+    <!-- Add a search bar at the top -->
+    <form th:action="@{/professors/search}" method="get" style="margin: 20px auto; max-width: 600px; display: flex; gap: 10px;">
+        <input type="text" name="query" placeholder="Search for a professor..." style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+        <select name="searchType" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+            <option value="all">All</option>
+            <option value="name">Name</option>
+            <option value="department">Department</option>
+            <option value="university">University</option>
+        </select>
+        <button type="submit" style="padding: 8px 16px; background-color: #333; color: white; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+    </form>
+
+    <div class="main-content">
+        <a th:href="@{/professors}" class="back-button">← Back to Professors</a>
+
+        <div class="professor-info">
+            <h1 th:text="${professor.getName()}">Professor Name</h1>
+            <p th:if="${professor.department}" th:text="'Department: ' + ${professor.department}">Department</p>
+            <p th:if="${professor.university}" th:text="'University: ' + ${professor.university}">University</p>
+        </div>
+
+        <div class="review-list">
+            <h2>Reviews</h2>
+
+            <div th:if="${#lists.isEmpty(reviews)}">
+                <p>No reviews found for this professor. Be the first to write a review!</p>
+                <a th:href="@{/reviews}" class="back-button">Write a Review</a>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(reviews)}">
+                <div class="review-item" th:each="review : ${reviews}">
+                    <div class="rating">
+                        <span th:each="i : ${#numbers.sequence(1, 5)}" th:text="${i <= review.rating ? '★' : '☆'}"></span>
+                    </div>
+                    <p><strong>Course ID:</strong> <span th:text="${review.courseId}">CS101</span></p>
+                    <p><strong>Class Name:</strong> <span th:text="${review.className}">Class Name</span></p>
+                    <p th:text="${review.content}">Review content</p>
+                    <p class="review-date" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd')}">2023-01-01</p>
+                    
+                    <!-- Add delete button if the review belongs to the current user -->
+                    <div th:if="${session.userId != null && review.student != null && review.student.user != null && review.student.user.id == session.userId}">
+                        <form th:action="@{/reviews/delete/{id}(id=${review.id})}" method="post">
+                            <button type="submit" class="delete-button">Delete Review</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

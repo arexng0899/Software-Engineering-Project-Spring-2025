@@ -74,27 +74,31 @@
 <body>
     <div class="top-bar">
         <div class="logo">
-            <img src="logo.jpg" alt="Logo">
+            <img th:src="@{/images/logo.jpg}" alt="Logo">
         </div>
         <div class="home-link">
-            <a href="home.html">Home</a>
+            <a th:href="@{/}">Home</a>
         </div>
     </div>
 
     <div class="form-container">
         <h2>Sign Up</h2>
-        <form onsubmit="return validateSignup()" action="user-profile.html">
-            <input type="text" id="name" placeholder="Name" required>
-            <input type="email" id="email" placeholder="Email" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+        <div th:if="${error}" class="error" th:text="${error}"></div>
+        <form th:action="@{/signup}" method="post">
+            <input type="text" id="username" name="username" placeholder="Username" required>
+            <input type="email" id="email" name="email" placeholder="Email" required>
+            <input type="password" id="password" name="password" placeholder="Password" required>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
             <div class="error" id="errorMsg"></div>
             <button type="submit">Signup</button>
         </form>
+        <p style="text-align: center; margin-top: 20px;">
+            Already have an account? <a th:href="@{/login}">Login</a>
+        </p>
     </div>
 
     <script>
-        function validateSignup() {
+        document.querySelector('form').addEventListener('submit', function(e) {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
             const confirm = document.getElementById('confirmPassword').value;
@@ -102,16 +106,18 @@
 
             if (!email.includes('@')) {
                 error.textContent = 'Please enter a valid email address.';
+                e.preventDefault();
                 return false;
             }
 
             if (pass !== confirm) {
                 error.textContent = 'Passwords do not match.';
+                e.preventDefault();
                 return false;
             }
 
             return true;
-        }
+        });
     </script>
 </body>
 </html>

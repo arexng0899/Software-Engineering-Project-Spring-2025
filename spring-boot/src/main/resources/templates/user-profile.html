@@ -58,6 +58,13 @@
             text-align: center;
             color: white;
             border: 1px solid #ccc;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .content {
             display: flex;
@@ -65,7 +72,7 @@
             padding: 20px;
             gap: 20px;
             background-color: #f4f4f4;
-            height: 400px;
+            min-height: 400px;
         }
         .picture-box {
             width: 200px;
@@ -76,6 +83,12 @@
             align-items: center;
             text-align: center;
             border: 1px solid #ccc;
+            overflow: hidden;
+        }
+        .picture-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .bio-box {
             width: 200px;
@@ -90,32 +103,122 @@
             padding: 20px;
             border: 1px solid #ccc;
         }
+        .reviews-section {
+            margin-top: 20px;
+        }
+        .review-item {
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+        }
+        .review-item:last-child {
+            border-bottom: none;
+        }
+        .rating {
+            color: #f8ce0b;
+            font-size: 18px;
+            letter-spacing: 3px;
+        }
+        .edit-button {
+            display: inline-block;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .delete-button {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .delete-button:hover {
+            background-color: #c9302c;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="logo">
-            <img src="logo.jpg" alt="Logo">
+            <img th:src="@{/images/logo.jpg}" alt="Logo">
         </div>
         <div class="header-title">User Profile</div>
         <div style="display: flex; align-items: center; gap: 10px;">
             <div class="nav-buttons">
-                <a href="home.html">Home</a>
-                <a href="review.html">Review</a>
+                <a th:href="@{/}">Home</a>
+                <a th:href="@{/reviews}">Reviews</a>
+                <a th:href="@{/professors}">Professors</a>
+                <a th:href="@{/logout}">Logout</a>
             </div>
-            <div class="profile-picture">Profile</div>
+            <div class="profile-picture">
+                <img th:if="${user.profilePicture}" th:src="${user.profilePicture}" alt="Profile Picture">
+                <span th:unless="${user.profilePicture}" th:text="${#strings.substring(user.username,0,1)}">P</span>
+            </div>
         </div>
     </div>
 
     <div class="content">
         <div>
-            <div class="picture-box">Picture Placeholder</div>
-            <div class="bio-box">Bio Placeholder</div>
+            <div class="picture-box">
+                <img th:if="${user.profilePicture}" th:src="${user.profilePicture}" alt="Profile Picture">
+                <span th:unless="${user.profilePicture}">Profile Picture</span>
+            </div>
+            <div class="bio-box">
+                <p><strong>Role:</strong> <span th:text="${user.role}">Student</span></p>
+                <p th:if="${student != null}"><strong>Study Hours:</strong> <span th:text="${student.studyHoursPerWeek}">0</span> hours/week</p>
+                <a th:href="@{/profile/edit}" class="edit-button">Edit Profile</a>
+            </div>
         </div>
         <div class="main-box">
-            <p>Name: <span th:text="${user.name}">Name Placeholder</span></p>
+            <h2 th:text="${user.username}">Username</h2>
             <p>Email: <span th:text="${user.email}">Email Placeholder</span></p>
-            <p>Password: <span th:text="${user.password}">Password Placeholder</span></p>
+            
+            <div class="reviews-section" th:if="${user.isStudent() && student != null}">
+                <h3>Your Reviews</h3>
+                <div th:if="${#lists.isEmpty(student.reviews)}">
+                    <p>You haven't written any reviews yet.</p>
+                    <a th:href="@{/reviews}" class="edit-button">Write a Review</a>
+                </div>
+                <div th:unless="${#lists.isEmpty(student.reviews)}">
+                    <div class="review-item" th:each="review : ${student.reviews}">
+                        <h4 th:text="${review.professor.getName()}">Professor Name</h4>
+                        <div class="rating">
+                            <span th:each="i : ${#numbers.sequence(1, 5)}" th:text="${i <= review.rating ? '★' : '☆'}"></span>
+                        </div>
+                        <p><strong>Course ID:</strong> <span th:text="${review.courseId}">CS101</span></p>
+                        <p><strong>Class Name:</strong> <span th:text="${review.className}">Intro to Programming</span></p>
+                        <p th:text="${review.content}">Review content goes here.</p>
+                        <p class="review-date" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd')}">2023-01-01</p>
+                        
+                        <form th:action="@{/reviews/delete/{id}(id=${review.id})}" method="post">
+                            <button type="submit" class="delete-button">Delete Review</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="reviews-section" th:if="${user.isProfessor() && user.professor != null}">
+                <h3>Reviews About You</h3>
+                <div th:if="${#lists.isEmpty(user.professor.reviews)}">
+                    <p>No reviews have been written about you yet.</p>
+                </div>
+                <div th:unless="${#lists.isEmpty(user.professor.reviews)}">
+                    <div class="review-item" th:each="review : ${user.professor.reviews}">
+                        <div class="rating">
+                            <span th:each="i : ${#numbers.sequence(1, 5)}" th:text="${i <= review.rating ? '★' : '☆'}"></span>
+                        </div>
+                        <p><strong>Course ID:</strong> <span th:text="${review.courseId}">CS101</span></p>
+                        <p><strong>Class Name:</strong> <span th:text="${review.className}">Intro to Programming</span></p>
+                        <p th:text="${review.content}">Review content goes here.</p>
+                        <p class="review-date" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd')}">2023-01-01</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </body>

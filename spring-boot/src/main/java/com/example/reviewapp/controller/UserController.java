@@ -3,6 +3,7 @@ package com.example.reviewapp.controller;
 import com.example.reviewapp.entity.Professor;
 import com.example.reviewapp.entity.Student;
 import com.example.reviewapp.entity.User;
+import com.example.reviewapp.service.FileUploadService;
 import com.example.reviewapp.service.ProfessorService;
 import com.example.reviewapp.service.StudentService;
 import com.example.reviewapp.service.UserService;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -24,6 +26,9 @@ public class UserController {
     
     @Autowired
     private ProfessorService professorService;
+    
+    @Autowired
+    private FileUploadService fileUploadService;
     
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password, HttpSession session, Model model) {
@@ -79,7 +84,7 @@ public class UserController {
     
     @GetMapping("/profile")
     public String profile(HttpSession session, Model model) {
-        Long userId = (Long) session.getAttribute("userId");
+        Integer userId = (Integer) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/login";
         }
@@ -105,7 +110,7 @@ public class UserController {
     
     @GetMapping("/profile/edit")
     public String editProfileForm(HttpSession session, Model model) {
-        Long userId = (Long) session.getAttribute("userId");
+        Integer userId = (Integer) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/login";
         }
@@ -131,12 +136,14 @@ public class UserController {
     
     @PostMapping("/profile/update")
     public String updateProfile(
+            @RequestParam String username,
             @RequestParam String email,
             @RequestParam(required = false) Integer studyHoursPerWeek,
+            @RequestParam(required = false) MultipartFile profilePicture,
             HttpSession session,
             Model model) {
         
-        Long userId = (Long) session.getAttribute("userId");
+        Integer userId = (Integer) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/login";
         }
@@ -145,17 +152,56 @@ public class UserController {
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             
+            // Check if username is changed
+            if (!user.getUsername().equals(username)) {
+                // Check if the new username is already taken
+                if (userService.usernameExists(username)) {
+                    model.addAttribute("error", "Username already in use by another account");
+                    model.addAttribute("user", user);
+                    
+                    if (user.isStudent()) {
+                        Optional<Student> studentOpt = studentService.findByUser(user);
+                        studentOpt.ifPresent(student -> model.addAttribute("student", student));
+                    } else if (user.isProfessor()) {
+                        Optional<Professor> professorOpt = professorService.findByUser(user);
+                        professorOpt.ifPresent(professor -> model.addAttribute("professor", professor));
+                    }
+                    
+                    return "edit-profile";
+                }
+                
+                // Update username
+                user.setUsername(username);
+                session.setAttribute("username", username);
+            }
+            
             // Update email if changed
             if (!user.getEmail().equals(email)) {
                 // Check if email is already in use by another user
                 if (userService.emailExists(email) && !userService.findByEmail(email).get().getId().equals(userId)) {
                     model.addAttribute("error", "Email already in use by another account");
                     model.addAttribute("user", user);
+                    
+                    if (user.isStudent()) {
+                        Optional<Student> studentOpt = studentService.findByUser(user);
+                        studentOpt.ifPresent(student -> model.addAttribute("student", student));
+                    } else if (user.isProfessor()) {
+                        Optional<Professor> professorOpt = professorService.findByUser(user);
+                        professorOpt.ifPresent(professor -> model.addAttribute("professor", professor));
+                    }
+                    
                     return "edit-profile";
                 }
                 user.setEmail(email);
-                userService.createUser(user); // Save updated user
             }
+            
+            // Update profile picture if provided
+            if (profilePicture != null && !profilePicture.isEmpty()) {
+                String profilePicturePath = fileUploadService.store(profilePicture);
+                user.setProfilePicture(profilePicturePath);
+            }
+            
+            userService.createUser(user); // Save updated user
             
             // Update student-specific fields
             if (user.isStudent() && studyHoursPerWeek != null) {
@@ -168,6 +214,56 @@ public class UserController {
             }
             
             return "redirect:/profile";
+        }
+        
+        return "redirect:/login";
+    }
+    
+    @GetMapping("/profile/change-password")
+    public String changePasswordForm(HttpSession session, Model model) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/login";
+        }
+        
+        return "change-password";
+    }
+    
+    @PostMapping("/profile/change-password")
+    public String changePassword(
+            @RequestParam String currentPassword,
+            @RequestParam String newPassword,
+            @RequestParam String confirmPassword,
+            HttpSession session,
+            Model model) {
+        
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/login";
+        }
+        
+        Optional<User> userOpt = userService.findById(userId);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            
+            // Verify current password
+            if (!user.getPassword().equals(currentPassword)) {
+                model.addAttribute("error", "Current password is incorrect");
+                return "change-password";
+            }
+            
+            // Verify new password matches confirmation
+            if (!newPassword.equals(confirmPassword)) {
+                model.addAttribute("error", "New passwords do not match");
+                return "change-password";
+            }
+            
+            // Update password
+            user.setPassword(newPassword);
+            userService.createUser(user);
+            
+            model.addAttribute("success", "Password changed successfully");
+            return "change-password";
         }
         
         return "redirect:/login";

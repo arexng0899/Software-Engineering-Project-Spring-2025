@@ -9,7 +9,7 @@ public class Professor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "professor_id")
-    private Long id;
+    private Integer id;
     
     @OneToOne
     @JoinColumn(name = "user_id")
@@ -24,12 +24,11 @@ public class Professor {
     @OneToMany(mappedBy = "professor")
     private List<Review> reviews;
     
-    // Getters and Setters
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
     
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
     
@@ -65,7 +64,6 @@ public class Professor {
         this.reviews = reviews;
     }
     
-    // Helper method to get professor's name from associated user
     public String getName() {
         return user != null ? user.getUsername() : null;
     }
